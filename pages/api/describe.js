@@ -1,7 +1,6 @@
-**
+/**
  * Temporary diagnostic endpoint — DELETE after use.
- * GET /api/describe  → returns Rex field model for contacts, match-profiles, and leads
- * Also reads one real contact so we can see the actual field structure returned.
+ * GET /api/describe  → reads real records to reveal exact field names
  */
  
 const REX_API_URL = process.env.REX_API_URL;
@@ -38,22 +37,13 @@ async function rexPost(token, endpoint, body = {}) {
 export default async function handler(req, res) {
   const token = await getRexToken();
  
-  const [contactsModel, matchProfilesModel, leadsModel, sampleContact, sampleLead] = await Promise.all([
-    rexPost(token, "contacts/describeModel"),
-    rexPost(token, "match-profiles/describeModel"),
-    rexPost(token, "leads/describeModel"),
-    // Read a real contact to see actual field structure
-    rexPost(token, "contacts/search", { limit: 1 }),
-    // Read a real lead to see actual field structure
+  // Search for one contact, one lead, one match profile — read their full structure
+  const [contacts, leads, matchProfiles] = await Promise.all([
+    rexPost(token, "contacts/search", { limit: 1, extra_fields: ["custom_fields"] }),
     rexPost(token, "leads/search", { limit: 1 }),
+    rexPost(token, "match-profiles/search", { limit: 1 }),
   ]);
  
-  return res.status(200).json({
-    contactsModel,
-    matchProfilesModel,
-    leadsModel,
-    sampleContact,
-    sampleLead,
-  });
+  return res.status(200).json({ contacts, leads, matchProfiles });
 }
  
