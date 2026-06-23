@@ -90,7 +90,7 @@ export default async function handler(req, res) {
     //    In Rex, custom field keys follow the pattern: "Custom Field Name"
     //    Adjust the keys below to match exactly what you named them in Rex
     //    under Settings > Custom Fields > Contacts.
-    await rexRequest(token, "contacts/edit", {
+    await rexRequest(token, "contacts/update", {
       id: Number(contactId),
       data: {
         // Standard notes field
